@@ -4,8 +4,8 @@ module Wf
     module Github
       module_function
 
-      NAMESPACE = 'uniwebru'.freeze
-      PROJECT = 'Obruset'.freeze
+      NAMESPACE = 'asnow'.freeze
+      PROJECT = 'wf'.freeze
 
       def github
         raise 'Установите переменную среды GITHUB_BASIC_AUTH' unless ENV['GITHUB_BASIC_AUTH']
