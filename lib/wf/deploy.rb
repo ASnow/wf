@@ -1,4 +1,5 @@
 module Wf
+  # project deploys
   class Deploy
     class << self
       def deploy
@@ -19,7 +20,7 @@ module Wf
             end
           end
           su = lambda do |user, commands, &block|
-            channel_ = ssh.open_channel do |channel|
+            ssh.open_channel do |channel|
               channel.request_pty(modes: { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
                 next unless success
                 sign_in = false
@@ -75,11 +76,11 @@ module Wf
         log 'bundle install...'
         `bundle install --without=development test` if files.any? { |f| f =~ /Gemfile(\.lock)?/ }
         log 'rake db:migrate...'
-        `rake db:migrate RAILS_ENV=production` if files.any? { |f| f =~ /db\/migrate\/.*\.rb/ }
+        `rake db:migrate RAILS_ENV=production` if files.any? { |f| f =~ %r{db/migrate/.*\.rb} }
         log 'localeapp pull...'
         `localeapp pull`
         log 'rake assets:precompile...'
-        `rake assets:precompile RAILS_ENV=production` if files.any? { |f| f =~ /app\/assets/ }
+        `rake assets:precompile RAILS_ENV=production` if files.any? { |f| f =~ %r{app/assets} }
         log 'rake tmp:cache:clear...'
         `nohup rake tmp:cache:clear RAILS_ENV=production > /dev/null &`
         log 'rake ts...'

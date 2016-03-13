@@ -18,6 +18,7 @@ require_relative 'wf/install'
 require_relative 'wf/structure'
 require_relative 'wf/task'
 
+# Work manager
 module Wf
   # Your code goes here...
 end

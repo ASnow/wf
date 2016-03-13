@@ -1,4 +1,5 @@
 module Wf
+  # installs wf
   class Install
     def self.install
       log 'Install for linux-amd64'
