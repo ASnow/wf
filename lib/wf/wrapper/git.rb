@@ -14,7 +14,8 @@ module Wf
           if uncommited?
             run('stash')
             yield
-            check_conflicts! unless run('stash pop')
+            check_conflicts!
+            check_conflicts! unless run('stash pop', return: :bool)
           else
             yield
           end
