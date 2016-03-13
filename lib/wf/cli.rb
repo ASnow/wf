@@ -52,7 +52,7 @@ module Wf
     option :all, type: :boolean
     def run_cops
       if options[:all]
-        Wrapper::Rubocop.run
+        Wrapper::Rubocop.run '.'
       else
         Wrapper::Git.check_style
       end

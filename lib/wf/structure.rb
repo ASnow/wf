@@ -1,4 +1,5 @@
 module Wf
+  # define working process structures
   class Structure
     class << self
       LOCAL_PREFIX = 'feature/'.freeze

@@ -9,7 +9,7 @@ module Wf
 
       def github
         raise 'Установите переменную среды GITHUB_BASIC_AUTH' unless ENV['GITHUB_BASIC_AUTH']
-        @github = ::Github.new basic_auth: ENV['GITHUB_BASIC_AUTH']
+        @github = ::Github.new basic_auth: ENV['GITHUB_BASIC_AUTH'], user: NAMESPACE, repo: PROJECT
       end
 
       def create_pull_request(comment, to_branch)
@@ -21,15 +21,15 @@ module Wf
       end
 
       def github_pull_request(number)
-        github.pull_requests.get(NAMESPACE, PROJECT, number.to_i)
+        github.pull_requests.get(number.to_i)
       end
 
       def github_pull_requests
-        github.pull_requests(user: NAMESPACE, repo: PROJECT)
+        github.pull_requests(repo: PROJECT)
       end
 
       def github_pull_request_merge(number)
-        github.pull_requests.merge(NAMESPACE, PROJECT, number.to_i)
+        github.pull_requests.merge(number.to_i)
       end
 
       def hub_check?
