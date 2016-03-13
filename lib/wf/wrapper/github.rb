@@ -1,20 +1,19 @@
 module Wf
   module Wrapper
+    # github API wrapper
     module Github
       module_function
 
-      NAMESPACE = 'uniwebru'
-      PROJECT = 'Obruset'
-
-      include Cmd
+      NAMESPACE = 'uniwebru'.freeze
+      PROJECT = 'Obruset'.freeze
 
       def github
         raise 'Установите переменную среды GITHUB_BASIC_AUTH' unless ENV['GITHUB_BASIC_AUTH']
         @github = ::Github.new basic_auth: ENV['GITHUB_BASIC_AUTH']
       end
 
-      def create_pull_request comment, to_branch
-        run 'hub', 'pull-request -m :comment -b :to_branch', with: {comment: comment, to_branch: to_branch}
+      def create_pull_request(comment, to_branch)
+        Cmd.run 'hub', 'pull-request -m :comment -b :to_branch', with: { comment: comment, to_branch: to_branch }
       end
 
       def github_open_pull_requests
@@ -34,7 +33,7 @@ module Wf
       end
 
       def hub_check?
-        run 'hub', '--version', return: :bool
+        Cmd.run 'hub', '--version', return: :bool
       end
     end
   end
