@@ -9,6 +9,7 @@ require_relative 'wf/version'
 require_relative 'wf/wrapper/logger'
 require_relative 'wf/wrapper/cmd'
 require_relative 'wf/wrapper/github'
+require_relative 'wf/wrapper/git/basic'
 require_relative 'wf/wrapper/git'
 require_relative 'wf/wrapper/rubocop'
 
