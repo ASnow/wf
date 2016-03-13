@@ -52,7 +52,7 @@ module Wf
     option :all, type: :boolean
     def run_cops
       if options[:all]
-        Wrapper::Rubocop.run
+        Wrapper::Rubocop.run '.'
       else
         Wrapper::Git.check_style
       end
@@ -65,32 +65,33 @@ module Wf
 
     desc 'install', ''
     def install
-      WF.install
+      Install.install
     end
 
     desc 'deploy', 'Deploy to production server'
     def deploy
-      WF.deploy
+      Deploy.deploy
     end
 
     desc 'deploy_local', 'Deploy localy. Get all changes from git'
     def deploy_local
-      WF.deploy_local
+      Deploy.deploy_local
     end
 
     desc 'tree_update', 'Update git tree by priority [hotfix, release, master]'
     def tree_update
-      WF.tree_update
+      Structure.tree_update
     end
 
+    # ok
     desc 'pr_list', 'Print current open PR'
     def pr_list
-      WF.pr_list
+      Structure.pr_list
     end
 
-    desc 'pr_merge ...ARGS', ''
-    def pr_merge
-      WF.pr_merge ARGV[1..-1]
+    desc 'pr_merge <PR_NUM>', ''
+    def pr_merge(number)
+      Structure.pr_merge number
     end
 
     OLD_HELP = <<-HELP.freeze
