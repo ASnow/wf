@@ -147,7 +147,7 @@ module Wf
                 git.push :stable
               end
             end
-            git.push "--delete #{release}"
+            git.remove_branch release
           end
         end
       end
