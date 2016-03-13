@@ -3,6 +3,7 @@ require_relative '../wf'
 require_relative 'cli/release'
 
 module Wf
+  # bin CLI
   class Cli < Thor
     desc 'start <TASK> [base]', 'Switch current work space to new TASK. New branch based on BASE branch. BASE can be: m(aster), h(otfix).'
     def start(task, base = nil)
@@ -48,8 +49,13 @@ module Wf
     end
 
     desc 'run_cops', ''
+    option :all, type: :boolean
     def run_cops
-      Wrapper::Rubocop.run Wrapper::Git.ruby_changed_files
+      if options[:all]
+        Wrapper::Rubocop.run
+      else
+        Wrapper::Git.check_style
+      end
     end
 
     desc 'test ...ARGS', ''
@@ -87,10 +93,7 @@ module Wf
       WF.pr_merge ARGV[1..-1]
     end
 
-    desc 'old_help', 'Print old help'
-    def old_help
-      puts <<-HELP
-      Current task: #{Task.env_task}
+    OLD_HELP = <<-HELP.freeze
       Workflow helper
         Commands:
           start JIRA_TASK [(m)aster|(h)otfix]
@@ -102,6 +105,12 @@ module Wf
           [(c)ommit ["comment"]]
             commit - auto commit
             comment - comment for commit
+    HELP
+    desc 'old_help', 'Print old help'
+    def old_help
+      puts <<-HELP
+      Current task: #{Task.env_task}
+      #{OLD_HELP}
       HELP
     end
   end

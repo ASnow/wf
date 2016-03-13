@@ -1,0 +1,29 @@
+Metrics/LineLength:
+  Max: 160
+Style/AsciiComments:
+  Enabled: false
+
+Rails/ActionFilter:
+  Enabled: false
+Rails/Date:
+  Enabled: false
+Rails/Delegate:
+  Enabled: false
+Rails/FindBy:
+  Enabled: false
+Rails/FindEach:
+  Enabled: false
+Rails/HasAndBelongsToMany:
+  Enabled: false
+Rails/Output:
+  Enabled: false
+Rails/PluralizationGrammar:
+  Enabled: false
+Rails/ReadWriteAttribute:
+  Enabled: false
+Rails/ScopeArgs:
+  Enabled: false
+Rails/TimeZone:
+  Enabled: false
+Rails/Validation:
+  Enabled: false
