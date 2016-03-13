@@ -1,9 +1,14 @@
 module Wf
+  # Define work process structure
   class Structure
     class << self
       LOCAL_PREFIX = 'feature/'.freeze
       REMOTE_PREFIX = 'feature/'.freeze
       include Wrapper::Cmd
+
+      def git
+        Wrapper::Git
+      end
 
       def extract_target_param!(param)
         target_branch = target_branch_by_param(param) || ask_target_branch
@@ -11,25 +16,20 @@ module Wf
         target_branch
       end
 
-      def target_branch_by_param(val)
-        case val
-        when 'hotfix', 'h'
+      def target_branch_by_param(param)
+        case param
+        when /\Ah(otfix)?\z/i
           last_hotfix
-        when 'master', 'm'
+        when /\Ar(elease)?\z/i
+          last_release
+        else
           :master
         end
       end
 
       def ask_target_branch
         answer = ask_for_valid 'Select base branch', '(m/h/r)', /m(aster)?|h(otfix)?|r(elease)?/i
-        case answer
-        when /h(otfix)?/i
-          last_hotfix
-        when /r(elease)?/i
-          last_release
-        else
-          :master
-        end
+        target_branch_by_param answer
       end
 
       def remote_feature_branch(feature)
@@ -41,31 +41,30 @@ module Wf
       end
 
       def last_hotfix
-        branch_subtree_for('hotfix').last
+        git.branch_subtree_for('hotfix').last
       end
 
       def last_release
-        branch_subtree_for('release').last
+        git.branch_subtree_for('release').last
       end
 
       def pr_updates
-        github_open_pull_requests.each do |pr|
-          in_branch pr.head.ref do
-            with_merged pr.base.ref do
-              `git push origin #{pr.head.ref}`
+        Wrapper::Github.github_open_pull_requests.each do |pr|
+          git.in_branch pr.head.ref do
+            git.with_merged pr.base.ref do
+              git.push pr.head.ref
             end
           end
         end
       end
 
-      def pr_merge(args)
-        number = args[0]
-        pr = github_pull_request number
+      def pr_merge(number)
+        pr = Wrapper::Github.github_pull_request number
         if pr
           if pr.merged
             log "PR #{number} already merged"
           else
-            github_pull_request_merge number
+            Wrapper::Github.github_pull_request_merge number
             tree_update
             log "PR #{number} merged"
           end
@@ -75,86 +74,80 @@ module Wf
       end
 
       def pr_list
-        github_open_pull_requests.each do |pr|
+        Wrapper::Github.github_open_pull_requests.each do |pr|
           log "#{pr.number} :: #{pr.base.ref} < #{pr.head.ref}  : #{pr.title}"
         end
       end
 
       def tree_update
-        update_queue = branch_subtree_for('hotfix') + branch_subtree_for('release') + [:master]
+        update_queue = git.branch_subtree_for('hotfix') + git.branch_subtree_for('release') + [:master]
         update_queue.each_cons(2) do |up, down|
-          in_branch down do
-            with_merged up do
-              `git push origin #{down}`
+          git.in_branch down do
+            git.with_merged up do
+              git.push down
             end
           end
         end
         pr_updates if boolean_ask 'Update Pull requests?'
       end
 
-      def release_hotfix(args)
-        version = args.first
-        args = args[1..-1]
+      def release_hotfix(version, comment)
         hotfix = "hotfix/#{version}"
 
-        restore_stash = true if uncommited?
-        in_branch hotfix do
+        restore_stash = true if git.uncommited?
+        git.in_branch hotfix do
           if restore_stash
-            `git stash apply`
-            commit! get_comment(args[1]) if Git.ask_to_commit
+            git.run 'stash apply', return: :bool
+            git.commit! git.get_comment(comment) if git.ask_to_commit
           end
-          `git push origin "#{hotfix}"`
+          git.push hotfix
           log 'Create tag'
-          `git tag -a v#{version} -m 'hotfix version #{version}'`
-          in_branch 'master' do
-            with_merged hotfix do
-              `git push origin master`
+          git.run "tag -a v#{version} -m 'hotfix version #{version}'", return: :bool
+          git.in_branch 'master' do
+            git.with_merged hotfix do
+              git.push :master
             end
           end
-          in_branch 'stable' do
-            with_merged hotfix do
-              `git push origin stable`
+          git.in_branch 'stable' do
+            git.with_merged hotfix do
+              git.push :stable
             end
           end
           # `git push origin --delete #{hotfix}`
         end
       end
 
-      def release_open(args)
-        cmd, version = *args
-        version = cmd if cmd != 'open'
-
+      def release_open(version)
         release = "release/#{version}"
-        in_branch 'master' do
-          in_branch release do
-            with_merged 'master' do
-              `git push origin "#{release}"`
+        git.in_branch 'master' do
+          git.in_branch release do
+            git.with_merged 'master' do
+              git.push release
             end
           end
         end
       end
 
-      def release_close(args)
-        version = args.first
+      def release_close(version)
         release = "release/#{version}"
-        in_branch 'master' do
-          in_branch release do
-            `git push origin "#{release}"`
+        git.in_branch 'master' do
+          git.in_branch release do
+            git.push release
             log 'Create tag'
-            `git tag -a v#{version} -m 'release version #{version}'`
-            in_branch 'master' do
+            git.run "tag -a v#{version} -m 'release version #{version}'", return: :bool
+            git.in_branch 'master' do
               log 'Merge master'
-              with_merged release do
-                `git push origin master`
+              git.with_merged release do
+                git.push :master
               end
             end
-            in_branch 'stable' do
+            git.in_branch 'stable' do
               log 'Merge stable'
-              with_merged release do
-                `git push origin stable`
+              git.with_merged release do
+                git.push :stable
               end
             end
-            `git push origin --delete #{release}`
+            git.push "--delete #{release}"
           end
         end
       end

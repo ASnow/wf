@@ -1,22 +1,21 @@
 module Wf
   class Cli < Thor
+    # commands for release versions
     class Release < Thor
-
-      desc "hotfix ...ARGS", "Close hotfix/* branch"
-      def hotfix *args
-        WF.release_hotfix args
+      desc 'hotfix <version> [comment]', 'Close hotfix/* branch'
+      def hotfix(version, comment = nil)
+        Structure.release_hotfix version, comment
       end
 
-      desc "close ...ARGS", "Close release/* branch"
-      def close *args
-        WF.release_close args
+      desc 'close <version>', 'Close release/* branch'
+      def close(version)
+        Structure.release_close version
       end
 
-      desc "open ...ARGS", "Open release/* branch"
-      def open *args
-        WF.release_open args
+      desc 'open <version>', 'Open release/* branch'
+      def open(version)
+        Structure.release_open version
       end
-      
     end
   end
 end
