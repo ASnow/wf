@@ -21,15 +21,15 @@ module Wf
       end
 
       def github_pull_request(number)
-        github.pull_requests.get(number.to_i)
+        github.pull_requests.get(number: number.to_i)
       end
 
       def github_pull_requests
-        github.pull_requests(repo: PROJECT)
+        github.pull_requests
       end
 
       def github_pull_request_merge(number)
-        github.pull_requests.merge(number.to_i)
+        github.pull_requests.merge(number: number.to_i)
       end
 
       def hub_check?

@@ -47,12 +47,21 @@ module Wf
       def ask_for_valid(msg, offer, validator)
         loop do
           log "#{msg} #{offer}"
-          answer = $stdin.gets
+          answer = $stdin.gets.chomp
           begin
-            return answer if answer =~ validator
+            return answer if check_value_by_validator(answer, validator)
           rescue
             nil
           end
+        end
+      end
+
+      def check_value_by_validator(value, validator)
+        if validator.is_a?(Range) || validator.is_a?(Array)
+          value = value.to_i if validator.first.is_a? Integer
+          validator.include? value
+        else
+          value =~ validator
         end
       end
     end

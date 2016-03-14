@@ -1,5 +1,5 @@
 module Wf
-  class Cli < Thor
+  module Cli
     # commands for release versions
     class Release < Thor
       desc 'hotfix <version> [comment]', 'Close hotfix/* branch'
