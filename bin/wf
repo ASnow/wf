@@ -3,4 +3,4 @@
 
 require_relative '../lib/wf/cli'
 
-Wf::Cli.start ARGV
+Wf::Cli::Base.start ARGV
