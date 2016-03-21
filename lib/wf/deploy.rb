@@ -4,66 +4,23 @@ module Wf
     class << self
       include Wrapper::Cmd
       SERVERS_FILE = '.wf_servers'.freeze
+      include SSHKit::DSL
 
       def deploy
         current_server = ask_for_server
-        finished = ('%08x' * 8) % Array.new(8) { rand(0xFFFFFFFF) }
         password = current_server['password']
-        Net::SSH.start(current_server['host'], current_server['user'], password: password, port: current_server['port']) do |ssh|
-          sign_in = false
-          remote_call = lambda do |channel, data, &block|
-            puts data
-            if data =~ /\[sudo\]/
-              channel.send_data(password + "\n")
-              sign_in = true
-            elsif data.include?(finished) || sign_in
-              sign_in = false
-              block.call
-            end
-          end
-          su = lambda do |user, commands, &block|
-            ssh.open_channel do |channel|
-              channel.request_pty(modes: { Net::SSH::Connection::Term::ECHO => 0 }) do |c, success|
-                next unless success
-                sign_in = false
-                c.exec("sudo su #{user}") do |_sudo_channel, sudo_success|
-                  if sudo_success
-                    channel.on_data do |_ondata_channel, data|
-                      remote_call.call(channel, data) do |_output|
-                        cmd = commands.shift
-                        if cmd
-                          puts "#{user}:$> #{cmd}"
-                          cmd = "#{cmd}; echo #{finished}\n"
-                          channel.send_data(cmd)
-                        else
-                          if block
-                            block.call channel
-                          else
-                            channel.do_close
-                          end
-                        end
-                      end
-                    end
-                    channel.on_close do |_onclose_channel|
-                      puts 'Channel closed.'
-                    end
-                  end
-                end
-              end
-            end
-          end
 
-          su.call(:bckp_usr, [
-                    '~/backup.sh'
-                  ]) do |bckp_usr|
-            bckp_usr.do_close
-            su.call(:rubyuser, [
-                      "cd #{current_server['working_dir']}",
-                      'ruby wf deploy_local',
-                      'touch tmp/restart.txt'
-                    ]) do |rubyuser|
-              rubyuser.do_close
-              ssh.close
+        host = SSHKit::Host.new("#{current_server['user']}@#{current_server['host']}")
+        host.port = current_server['port'] || 22
+        host.password = password
+        on host do
+          as :bckp_usr do
+            within('/home/bckp_usr') { execute('~/backup.sh') }
+          end
+          as :rubyuser do
+            within(current_server['working_dir']) do
+              execute('ruby wf deploy_local')
+              execute('touch tmp/restart.txt')
             end
           end
         end

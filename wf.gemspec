@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'thor'
   spec.add_dependency 'json'
-  spec.add_dependency 'net-ssh'
+  spec.add_dependency 'sshkit'
   spec.add_dependency 'github_api'
   spec.add_dependency 'cocaine', '~> 0.5.8'
   spec.add_development_dependency 'bundler', '~> 1.6'
