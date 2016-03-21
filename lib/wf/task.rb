@@ -29,13 +29,7 @@ module Wf
       def close(base)
         target_branch = Structure.extract_target_param! base
         push nil, '#resolve-issue'
-        if Wrapper::Github.hub_check?
-          Wrapper::Github.create_pull_request "#{env_task} close", target_branch
-        elsif boolean_ask("Hub don't installed.\nCommit direct to #{target_branch}?")
-          git.switch_to target_branch
-          pull_task env_task
-          git.push
-        end
+        Wrapper::Github.create_pull_request "#{env_task} close", target_branch
         self.env_task = nil
       end
 
