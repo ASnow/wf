@@ -12,6 +12,7 @@ module Wf
         @github = ::Github.new basic_auth: ENV['GITHUB_BASIC_AUTH'], user: NAMESPACE, repo: PROJECT
       end
 
+      # todo
       def create_pull_request(comment, to_branch)
         unless pull_request_open? Git.current_branch, to_branch
           github_pull_requests.create(
