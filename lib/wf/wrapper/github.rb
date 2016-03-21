@@ -13,7 +13,20 @@ module Wf
       end
 
       def create_pull_request(comment, to_branch)
-        Cmd.run 'hub', 'pull-request -m :comment -b :to_branch', with: { comment: comment, to_branch: to_branch }
+        unless pull_request_open? Git.current_branch, to_branch
+          github_pull_requests.create(
+            title: comment,
+            body: "",
+            head: Git.current_branch,
+            base: to_branch
+          )
+        end
+      end
+
+      def pull_request_open?(head, base)
+        github_open_pull_requests.detect do |pr|
+          pr.head.ref == head.to_s && pr.base.ref == base.to_s
+        end
       end
 
       def github_open_pull_requests
@@ -30,10 +43,6 @@ module Wf
 
       def github_pull_request_merge(number)
         github.pull_requests.merge(number: number.to_i)
-      end
-
-      def hub_check?
-        Cmd.run 'hub', '--version', return: :bool
       end
     end
   end

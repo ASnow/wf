@@ -1,6 +1,7 @@
 require 'json'
 require 'pry'
-require 'net/ssh'
+require 'sshkit'
+require 'sshkit/dsl'
 require 'github_api'
 require 'cocaine'
 
