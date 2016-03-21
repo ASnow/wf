@@ -83,6 +83,10 @@ module Wf
         def push(refspec)
           run 'push origin :refspec', with: { refspec: refspec }
         end
+
+        def remove_branch branch
+          run 'push origin --delete :branch', with: { branch: branch }
+        end
       end
     end
   end
