@@ -25,7 +25,7 @@ module Wf
 
       def pull_request_open?(head, base)
         github_open_pull_requests.detect do |pr|
-          pr.head.ref == head && pr.base.ref == base
+          pr.head.ref == head.to_s && pr.base.ref == base.to_s
         end
       end
 
