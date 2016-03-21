@@ -13,12 +13,20 @@ module Wf
       end
 
       def create_pull_request(comment, to_branch)
-        github_pull_requests.create(
-          title: comment,
-          body: "",
-          head: Git.current_branch,
-          base: to_branch
-        )
+        unless pull_request_open? Git.current_branch, to_branch
+          github_pull_requests.create(
+            title: comment,
+            body: "",
+            head: Git.current_branch,
+            base: to_branch
+          )
+        end
+      end
+
+      def pull_request_open?(head, base)
+        github_open_pull_requests.detect do |pr|
+          pr.head == head && pr.base == base
+        end
       end
 
       def github_open_pull_requests
