@@ -28,6 +28,10 @@ module Wf
           goto if change_by @table_cols
         end
 
+        def lines
+          (@list.size.to_f / @table_cols).ceil
+        end
+
         def change_by(by)
           return false unless @list.size > @current + by
           return false if 0 > @current + by
