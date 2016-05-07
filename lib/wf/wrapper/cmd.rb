@@ -1,8 +1,11 @@
+require 'io/console'
+
 module Wf
   module Wrapper
     # Hadles interaction with command line: command execution, user inputs
     module Cmd
       include Logger
+      include Draw
 
       module_function
 
@@ -53,6 +56,22 @@ module Wf
           rescue
             nil
           end
+        end
+      end
+
+      def interact
+        key = ''
+        loop do
+          IO.console.raw do |io|
+            begin
+              key = io.read_nonblock(8)
+            rescue IO::WaitReadable
+              IO.select([io])
+              retry
+            end
+          end
+          return false if key == "\e" || key == "\x03" || key == "\x04"
+          return true if yield key
         end
       end
 

@@ -10,6 +10,12 @@ module Wf
           run('rev-parse --abbrev-ref HEAD').split("\n")[0]
         end
 
+        def index
+          selected = draw_checkboxes changed_files
+          return if selected.empty?
+          run 'add :files', with: { files: selected }
+        end
+
         def with_stash
           if uncommited?
             run('stash')

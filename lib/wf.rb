@@ -8,6 +8,8 @@ require 'cocaine'
 require_relative 'wf/version'
 
 require_relative 'wf/wrapper/logger'
+require_relative 'wf/wrapper/cmd/table_handler'
+require_relative 'wf/wrapper/cmd/draw'
 require_relative 'wf/wrapper/cmd'
 require_relative 'wf/wrapper/github'
 require_relative 'wf/wrapper/git/basic'

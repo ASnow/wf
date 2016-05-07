@@ -47,6 +47,11 @@ module Wf
         Wrapper::Git.pull
       end
 
+      desc 'index', 'Git index unstaged files'
+      def index
+        Wrapper::Git.index
+      end
+
       desc 'check', 'Check style guide'
       option :all, type: :boolean
       def check
