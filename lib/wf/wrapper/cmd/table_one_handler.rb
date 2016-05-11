@@ -5,7 +5,7 @@ module Wf
       class TableOneHandler < TableMultiHandler
         def toggle
           restore_current = @current
-          @selects.each do |index, value|
+          @selects.each_with_index do |value, index|
             next unless value
             next if index == restore_current
             @current = index
