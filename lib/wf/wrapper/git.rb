@@ -98,6 +98,10 @@ module Wf
           log "Comment for commit: #{prefix}"
           $stdin.gets
         end
+
+        def remote_branches
+          exec_output_list(run('branch -r'))
+        end
       end
     end
   end
