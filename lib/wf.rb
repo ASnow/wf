@@ -14,6 +14,8 @@ require_relative 'wf/wrapper/cmd/draw'
 require_relative 'wf/wrapper/cmd'
 require_relative 'wf/wrapper/github'
 require_relative 'wf/wrapper/git/basic'
+require_relative 'wf/wrapper/git/switch'
+require_relative 'wf/wrapper/git/branch'
 require_relative 'wf/wrapper/git'
 require_relative 'wf/wrapper/rubocop'
 

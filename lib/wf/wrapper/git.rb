@@ -5,10 +5,8 @@ module Wf
       class << self
         include Logger
         include Basic
-
-        def current_branch
-          run('rev-parse --abbrev-ref HEAD').split("\n")[0]
-        end
+        include Switch
+        include Branch
 
         def index
           selected = draw_checkboxes changed_files
@@ -24,17 +22,6 @@ module Wf
             check_conflicts! unless run('stash pop', return: :bool)
           else
             yield
-          end
-        end
-
-        def in_branch(branch)
-          return_to = current_branch
-          return yield if return_to == branch
-
-          with_stash do
-            switch_to branch
-            yield
-            switch_to return_to
           end
         end
 
@@ -76,20 +63,6 @@ module Wf
           changed_files.select { |path| path =~ /(\.rb|\.rake)\z/i }
         end
 
-        def branch_subtree_for(prefix)
-          result = run 'branch -a --list :mask', with: { mask: "#{prefix}/*" }
-          branch_subtree = exec_output_list result
-
-          branch_subtree.sort_by { |a| a.split('/').last.split('.').map(&:to_i) }
-        end
-
-        # парсинг вывода git комнад
-        def exec_output_list(output)
-          output.split("\n").map do |line|
-            line.strip.sub('* ', '')
-          end
-        end
-
         def get_comment(args = nil, prefix = '')
           "#{prefix}#{args || ask_comment(prefix)}"
         end
@@ -97,10 +70,6 @@ module Wf
         def ask_comment(prefix = '')
           log "Comment for commit: #{prefix}"
           $stdin.gets
-        end
-
-        def remote_branches
-          exec_output_list(run('branch -r'))
         end
       end
     end

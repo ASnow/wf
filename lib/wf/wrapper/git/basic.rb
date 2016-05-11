@@ -14,10 +14,6 @@ module Wf
           run('status -b -s').split("\n")
         end
 
-        def branch?(name)
-          !run('branch --list :name', with: { name: name }).empty?
-        end
-
         def merge!(branch)
           run 'merge :branch --no-edit', with: { branch: branch }
           true
@@ -30,34 +26,6 @@ module Wf
           check_style
           run 'add .'
           run 'commit -a -m :message', with: { message: msg }
-        end
-
-        def switch_to(branch, start_point = nil, opts = nil)
-          unless branch?(branch)
-            start_point = current_branch unless start_point
-            in_branch start_point do
-              __switch_to branch, "#{opts} -b "
-            end
-          end
-          __switch_to branch, opts
-          log "Current branch: #{branch}"
-        end
-
-        def __switch_to(branch, opts = nil)
-          __switch_loop branch, opts
-          pull branch
-        end
-
-        def __switch_loop(branch, opts)
-          checkout = run("checkout #{opts} :branch", with: { branch: branch }, return: :bool)
-          until checkout
-            log "Can't switch branch to #{branch} untill changes apply:"
-            puts status[1..-1].join("\n")
-            log 'Please fix you changes before next:'
-            protect_changes do
-              checkout = run("checkout #{opts} :branch", with: { branch: branch }, return: :bool)
-            end
-          end
         end
 
         def pull(remote_branch = current_branch)
@@ -84,8 +52,16 @@ module Wf
           run 'push origin :refspec', with: { refspec: refspec }
         end
 
-        def remove_branch branch
-          run 'push origin --delete :branch', with: { branch: branch }
+        # парсинг вывода git комнад
+        def exec_output_list(output)
+          output.split("\n").map do |line|
+            line.strip.sub('* ', '')
+          end
+        end
+
+        def cherry(refspec)
+          result = run 'cherry :refspec', with: { refspec: refspec }
+          exec_output_list(result)
         end
       end
     end
