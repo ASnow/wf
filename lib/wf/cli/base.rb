@@ -74,12 +74,17 @@ module Wf
 
       desc 'git_clean', 'Remove all local brances pushed to remote master'
       def git_clean
+        will_romove = []
         Wrapper::Git.local_branches.each do |current|
           Wrapper::Git.in_branch(current) do
             next if current == 'master'
             next unless Wrapper::Git.cherry('origin/master').size.zero?
-            Wrapper::Git.run('branch -d :ref', with: {ref: current})
+            will_romove << current
           end
+        end
+        will_romove.each do |current|
+          Wrapper::Git.log "remove branch #{current}"
+          Wrapper::Git.run('branch -d :ref', with: {ref: current})
         end
       end
     end
