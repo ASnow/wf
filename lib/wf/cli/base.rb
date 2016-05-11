@@ -83,7 +83,7 @@ module Wf
           end
         end
         will_romove.each do |current|
-          Wrapper::Git.log "remove branch #{current}"
+          Wrapper::Logger.log "remove branch #{current}"
           Wrapper::Git.run('branch -d :ref', with: {ref: current})
         end
       end
