@@ -25,7 +25,29 @@ module Wf
         def draw_checkboxes(list, selects = [])
           draw_list = list.zip(selects).map { |(item, select)| " [#{select ? 'x' : ' '}] #{item}" }
           col_size, table_cols = draw_columns draw_list
-          helper = TableHandler.new(list, selects, col_size, table_cols)
+          helper = TableMultiHandler.new(list, selects, col_size, table_cols)
+          IO.console << "\x1b[#{helper.lines}A\x1b[2C"
+          result = interact do |key|
+            case key
+            when "\e[B" then helper.down
+            when "\e[C" then helper.next
+            when "\e[D" then helper.prev
+            when "\e[A" then helper.up
+            when "\r", "\n" then break true
+            when ' ' then helper.toggle
+            end
+
+            false
+          end
+          IO.console << "\x1b[#{helper.lines}B"
+
+          result ? helper.result : []
+        end
+
+        def draw_select(list, selects = [])
+          draw_list = list.zip(selects).map { |(item, select)| " [#{select ? 'x' : ' '}] #{item}" }
+          col_size, table_cols = draw_columns draw_list
+          helper = TableOneHandler.new(list, selects, col_size, table_cols)
           IO.console << "\x1b[#{helper.lines}A\x1b[2C"
           result = interact do |key|
             case key

@@ -2,7 +2,7 @@ module Wf
   module Wrapper
     # Hadles interaction with command line: command execution, user inputs
     module Cmd
-      class TableHandler
+      class TableMultiHandler
         def initialize(list, selects, col_size, table_cols)
           @list = list
           @col_size = col_size
