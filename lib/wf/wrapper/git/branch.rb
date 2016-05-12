@@ -27,7 +27,7 @@ module Wf
         end
 
         def remote_branches
-          exec_output_list(run('branch -r'))
+          exec_output_list(run('ls-remote --heads origin')).map{|branch| branch.gsub(%r{\A.*?refs/heads/}, '') }
         end
 
         def branch_subtree_for(prefix)
